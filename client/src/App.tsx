@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { Button, Table, Modal } from "antd";
+import React, { useEffect, useState } from "react";
+import { Button, Table, message, Modal } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import "./App.css";
+import FileUpload from "./components/FileUpload";
+import Action from "./components/Action";
+import axios from "axios";
 
 interface DataType {
   id: string;
@@ -14,6 +15,14 @@ const App: React.FC = () => {
   const [files, setFiles] = useState<any>([]);
   const [attach, setAttach] = useState<boolean>(false);
 
+  function bytesToSize(bytes: any) {
+    var sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+    if (bytes == 0) return "n/a";
+    var i = Math.floor(Math.log(parseInt(bytes)) / Math.log(1024));
+    if (i == 0) return bytes + " " + sizes[i];
+    return (bytes / Math.pow(1024, i)).toFixed(1) + " " + sizes[i];
+  }
+
   const fetchData = async () => {
     await axios({
       method: "GET",
@@ -22,6 +31,8 @@ const App: React.FC = () => {
       .then((res) => {
         res.data.map((file: any) => {
           file.key = file.id;
+          file.createdAt = new Date(file.createdAt).toDateString();
+          file.fileSize = bytesToSize(file.fileSize);
         });
         setFiles(res.data);
       })
@@ -45,17 +56,43 @@ const App: React.FC = () => {
       title: "Uploaded Date",
       dataIndex: "createdAt",
     },
+    {
+      title: "Action",
+      dataIndex: "",
+      render: (text, props) => {
+        return (
+          <Action
+            fetchData={fetchData}
+            fileName={props.fileName}
+            itemId={props.id}
+          />
+        );
+      },
+    },
   ];
 
   return (
-    <div>
-      <div>
+    <div className="container-fluid p-0">
+      <div className="mt-5 form-group">
         <Button type="primary" onClick={() => setAttach(true)}>
           upload
         </Button>
       </div>
 
       <Table columns={columns} dataSource={files} size="middle" />
+
+      <Modal
+        open={attach}
+        onCancel={() => {
+          setAttach(false);
+        }}
+        width={1000}
+        title="Upload"
+        footer={[]}
+        destroyOnClose={true}
+      >
+        <FileUpload fetchData={fetchData} />
+      </Modal>
     </div>
   );
 };
