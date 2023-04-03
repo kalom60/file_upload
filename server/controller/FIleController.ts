@@ -16,6 +16,11 @@ class FileController {
       console.log("Not added to database.");
     }
   }
+
+  static async getFiles(request: Request, response: Response) {
+    const files = await db.models.File.findAll();
+    response.json(files);
+  }
 }
 
 export default FileController;
