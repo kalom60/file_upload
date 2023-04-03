@@ -21,6 +21,16 @@ class FileController {
     const files = await db.models.File.findAll();
     response.json(files);
   }
+
+  static async deleteFile(request: Request, response: Response) {
+    const { id } = request.query;
+    await db.models.File.destroy({
+      where: {
+        id: id,
+      },
+    });
+    response.json("deleted");
+  }
 }
 
 export default FileController;
