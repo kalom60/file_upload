@@ -9,7 +9,7 @@ interface IDBConfig {
 const dbConfig: IDBConfig = {
   HOST: "127.0.0.1",
   USER: "root",
-  PASSWORD: "mysql60tmc",
+  PASSWORD: "root",
   DATABASE: "fileupload",
   DIALECT: "mysql",
 };
